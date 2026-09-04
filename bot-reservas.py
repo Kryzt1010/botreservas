@@ -1,6 +1,8 @@
 import requests
 import time
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 
 URL_LOOKUP = "https://crm-vikingos-radical-production.up.railway.app/api/v1/portal/lookup"
 URL_BOOKING = "https://crm-vikingos-radical-production.up.railway.app/api/v1/portal/bookings"
@@ -25,6 +27,8 @@ HORA_FIN = "23:00"
 
 # ==========================
 
+def ahora_chile():
+    return datetime.now(ZoneInfo("America/Santiago"))
 
 def obtener_schedule():
 
@@ -113,7 +117,7 @@ def reservar_clase(clase):
 
 def dentro_del_horario():
 
-    ahora = datetime.now().strftime("%H:%M")
+    ahora = ahora_chile()
 
     return HORA_INICIO <= ahora <= HORA_FIN
 
@@ -127,12 +131,12 @@ def es_dia_de_reserva():
     # sábado = 5
     # domingo = 6
 
-    dia = datetime.now().weekday()
+    dia = ahora_chile()
 
     return dia in [1, 3, 6]
 
 def obtener_fecha_clase():
-    hoy = datetime.now()
+    hoy = ahora_chile()
 
     # Solo trabajamos domingo, martes y jueves
     if hoy.weekday() not in [1, 3, 6]:
@@ -158,7 +162,7 @@ def main():
 
     while True:
 
-        ahora = datetime.now()
+        ahora = ahora_chile()
         dia = ahora.weekday()
 
         # --------------------------------
