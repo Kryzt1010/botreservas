@@ -20,7 +20,8 @@ INTERVALO = 30
 
 # Hora desde la que empieza a buscar
 HORA_INICIO = "21:00"
-HORA_ENCENDIDO = "20:55"
+SEGUNDOS_ANTES = 15       
+MAX_HORAS_ESPERA = 4
 
 # Hora máxima hasta la que seguirá buscando
 HORA_FIN = "23:00"
@@ -29,6 +30,10 @@ HORA_FIN = "23:00"
 
 def ahora_chile():
     return datetime.now(ZoneInfo("America/Santiago"))
+
+def hora_de_hoy(hhmm):
+    h, m = map(int, hhmm.split(":"))
+    return ahora_chile().replace(hour=h, minute=m, second=0, microsecond=0)
 
 def obtener_schedule():
 
@@ -114,27 +119,6 @@ def reservar_clase(clase):
         print("Error al intentar reservar:", e)
         return False
 
-
-def dentro_del_horario():
-
-    ahora = ahora_chile()
-
-    return HORA_INICIO <= ahora <= HORA_FIN
-
-def es_dia_de_reserva():
-    # Python:
-    # lunes = 0
-    # martes = 1
-    # miércoles = 2
-    # jueves = 3
-    # viernes = 4
-    # sábado = 5
-    # domingo = 6
-
-    dia = ahora_chile()
-
-    return dia in [1, 3, 6]
-
 def obtener_fecha_clase():
     hoy = ahora_chile()
 
@@ -156,7 +140,7 @@ def main():
     print("Clase:", CLASE)
     print("Hora:", HORA)
     print("Revisión cada:", INTERVALO, "segundos")
-    print("Se activará a las:", HORA_ENCENDIDO)
+
     print("Buscará desde:", HORA_INICIO)
     print("Hasta:", HORA_FIN)
 
@@ -175,40 +159,29 @@ def main():
             break
 
         # --------------------------------
-        # Esperar hasta las 20:55
+        # Calcular tiempos (hora Chile)
         # --------------------------------
 
-        hora_actual = ahora.strftime("%H:%M")
+        inicio = hora_de_hoy(HORA_INICIO)
+        fin = hora_de_hoy(HORA_FIN)
+        falta = (inicio - ahora).total_seconds()
 
-        if hora_actual < HORA_ENCENDIDO:
-            print(
-                "\nEsperando hasta",
-                HORA_ENCENDIDO,
-                "..."
-            )
+        # Si faltan más de 4 horas, cerrar
+        if falta > MAX_HORAS_ESPERA * 3600:
+            print(f"\nFaltan más de {MAX_HORAS_ESPERA} horas para las {HORA_INICIO}.")
+            print("El bot termina.")
+            break
 
-            time.sleep(30)
+        # Si falta tiempo, dormir hasta 15 segundos antes
+        if falta > SEGUNDOS_ANTES:
+            espera = falta - SEGUNDOS_ANTES
+            print(f"\nFaltan {int(falta // 60)} min para las {HORA_INICIO}.")
+            print(f"Durmiendo {int(espera)} segundos...")
+            time.sleep(espera)
             continue
 
-        # --------------------------------
-        # Esperar hasta las 21:00
-        # --------------------------------
-
-        if hora_actual < HORA_INICIO:
-            print(
-                "\nBot encendido.",
-                "Esperando hasta las",
-                HORA_INICIO
-            )
-
-            time.sleep(10)
-            continue
-
-        # --------------------------------
-        # Si pasó de las 23:00
-        # --------------------------------
-
-        if hora_actual > HORA_FIN:
+        # Si ya pasó la hora final
+        if ahora >= fin:
             print("\nHorario terminado.")
             print("El bot termina.")
             break
@@ -260,7 +233,7 @@ def main():
         # Mostrar información
         # --------------------------------
 
-        ahora = datetime.now().strftime("%H:%M:%S")
+        ahora = ahora_chile().strftime("%H:%M:%S")
 
         print(
             f"\n[{ahora}] "
