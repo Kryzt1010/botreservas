@@ -21,7 +21,7 @@ INTERVALO = 30
 # Hora desde la que empieza a buscar
 HORA_INICIO = "21:00"
 SEGUNDOS_ANTES = 15       
-MAX_HORAS_ESPERA = 4
+MAX_HORAS_ESPERA = 5
 
 # Hora máxima hasta la que seguirá buscando
 HORA_FIN = "23:00"
