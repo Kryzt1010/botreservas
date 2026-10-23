@@ -16,15 +16,15 @@ HORA = "09:00"
 
 
 # Cada cuántos segundos vuelve a revisar
-INTERVALO = 30
+INTERVALO = 1
 
 # Hora desde la que empieza a buscar
 HORA_INICIO = "21:00"
-SEGUNDOS_ANTES = 15       
+SEGUNDOS_ANTES = 0      
 MAX_HORAS_ESPERA = 5
 
 # Hora máxima hasta la que seguirá buscando
-HORA_FIN = "23:00"
+HORA_FIN = "21:05"
 
 # ==========================
 
